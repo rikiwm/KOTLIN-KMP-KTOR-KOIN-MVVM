@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,6 +30,8 @@ import androidx.navigation.compose.rememberNavController
 import org.rikimukhraa.project.screen.detail.DetailScreen
 import org.rikimukhraa.project.screen.detail.ProductScreen
 import org.rikimukhraa.project.screen.home.Homecreen
+import org.rikimukhraa.project.ui.auth.FirebaseAuthManager
+import org.rikimukhraa.project.ui.auth.LoginScreen
 import org.rikimukhraa.project.ui.navigation.BottomNavigationItem
 import org.rikimukhraa.project.ui.profile.ProfileScreen
 import kotlin.math.absoluteValue
@@ -40,11 +43,15 @@ var navigationSelectedItem = remember { mutableIntStateOf(0) }
 val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val shouldShowBottomNav = remember { mutableStateOf(false) }
+
 Scaffold(
 modifier = Modifier.fillMaxSize(),
 bottomBar = {
+
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surfaceContainerLowest,
+
     ) {
         BottomNavigationItem().bottomNavigationItems().forEachIndexed { index, navigationItem ->
             NavigationBarItem(
@@ -93,7 +100,7 @@ bottomBar = {
 @Composable
 fun SetupNavGraph(
     navController: NavHostController,
-    startDestination: String = Screen.Home.route
+    startDestination: String = Screen.Home.route,
 ){
     NavHost(
             navController = navController,
@@ -142,13 +149,16 @@ fun SetupNavGraph(
         composable(route = "productDetail/{productId}") {backStackEntry->
             val productId: String? = backStackEntry.arguments?.getString("productId") ?: "Unknown"
             DetailScreen(
+                shouldShowBottomNav = { mutableStateOf(true) },
+
                 navigateBack = { navController.popBackStack()},
                 productId = productId
             )
         }
 
-        composable(route = Screen.Profile.route) {backStackEntry->
-            ProfileScreen(
+        composable(route = Screen.Login.route) {
+            LoginScreen(
+                authManager = FirebaseAuthManager(),
             )
         }
 

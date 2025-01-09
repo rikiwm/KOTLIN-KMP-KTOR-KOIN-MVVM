@@ -1,44 +1,74 @@
 package org.rikimukhraa.project.screen.home
 
+
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.rounded.ExitToApp
 import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Search
-
+import androidx.compose.material.icons.outlined.AccountBox
+import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.CheckCircle
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.MailOutline
+import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.Person
+import androidx.compose.material.icons.outlined.ShoppingCart
+import androidx.compose.material.icons.rounded.Face
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.input.nestedscroll.nestedScroll
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import com.seiko.imageloader.Image
 import com.seiko.imageloader.rememberImagePainter
-
+import kotlinx.serialization.Contextual
+import kotlinx.serialization.Serializable
 
 @Composable
 fun Homecreen(
@@ -55,49 +85,56 @@ fun Homecreen(
             cols = 3
             modifier = Modifier.widthIn(max = 1240.dp)
         }
-
+        if (maxWith > 1920.dp) {
+            cols = 4
+            modifier = Modifier.widthIn(max = 1920.dp)
+        }
         val scrollState = rememberLazyGridState()
         Column(
             modifier = modifier,
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Bottom
         ) {
+            Spacer(modifier = Modifier.height(20.dp))
+            CarouselScreen()
+            Spacer(
+                modifier = Modifier.height(4.dp)
+            )
             LazyVerticalGrid(
                 columns = GridCells.Fixed(cols),
                 state = scrollState,
-                contentPadding =  PaddingValues(16.dp),
+                contentPadding =  PaddingValues(14.dp),
             ) {
-
                 items(product.value, key = { product -> product.id .toString() }) { product ->
                     Card(
-                        shape = RoundedCornerShape(15.dp),
+                        shape = RoundedCornerShape(14.dp),
                         modifier = Modifier.padding(8.dp).fillMaxWidth(),
                         colors = CardDefaults.cardColors(Color.White),
-                        elevation = CardDefaults.cardElevation(3.dp)
+                        elevation = CardDefaults.cardElevation(1.dp)
                     ){
-//                        Column(
-//                            horizontalAlignment = Alignment.CenterHorizontally,
-//                            verticalArrangement = Arrangement.Center
-//                        )
-//                        {
-//                            val painter = rememberImagePainter(url =  product.image?:"")
-//                            Image(painter,
-//                                modifier = Modifier.height(130.dp).padding(12.dp),
-//                                contentDescription =  product.title.toString()
-//                            )
-//                            Text(
-//                                product.title.toString(),
-//                                maxLines = 2,
-//                                overflow = TextOverflow.Ellipsis,
-//                                modifier = Modifier.padding(12.dp).heightIn(min = 30.dp)
-//                            )
-//                        }
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        )
+                        {
+                            val painter = rememberImagePainter(url =  product.image?:"")
+                            Image(painter,
+                                modifier = Modifier.height(130.dp).padding(12.dp),
+                                contentDescription =  product.title.toString()
+                            )
+                            Text(
+                                product.title.toString(),
+                                maxLines = 2,
+                                overflow = TextOverflow.Ellipsis,
+                                modifier = Modifier.padding(12.dp).heightIn(min = 30.dp)
+                            )
+                        }
                         Spacer(
                             modifier = Modifier.height(6.dp)
                         )
                         Box(
                             modifier = Modifier.fillMaxWidth(),
-                            contentAlignment = Alignment.Center
+                            contentAlignment = Alignment.BottomCenter
                         ){
                             Text(
                                 product.price.toString(),
@@ -118,4 +155,97 @@ fun Homecreen(
         }
     }
 
+}
+//
+@Composable
+fun CarouselScreen() {
+    val items = listOf(
+        CarouselItem("Item 1",  Icons.Outlined.Menu),
+        CarouselItem("Item 2", Icons.Outlined.MailOutline),
+        CarouselItem("Item 3", Icons.Outlined.AccountBox),
+        CarouselItem("Item 4", Icons.Outlined.Info),
+        CarouselItem("Item 4", Icons.Outlined.Build),
+        CarouselItem("Item 4", Icons.Outlined.CheckCircle),
+        CarouselItem("Item 4", Icons.Outlined.ShoppingCart),
+        CarouselItem("Item 4", Icons.Outlined.Person),
+    )
+    HorizontalMultiBrowseCarousel(items)
+    LaunchedEffect(Unit) {
+        items.forEach {
+            println("Image URL: ${it.imageUrl}")
+        }
+    }
+}
+@Composable
+fun HorizontalMultiBrowseCarousel(items: List<CarouselItem>) {
+    LazyRow(
+        contentPadding = PaddingValues(horizontal = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp),) {
+        items(items) { item ->
+            CarouselItem(item = item)
+        }
+    }
+}
+
+@Composable
+fun CarouselItem(item: CarouselItem) {
+    Card(
+        modifier = Modifier
+            .width(60.dp).height(60.dp).padding(2.dp)
+            .clip(RoundedCornerShape(1.dp)),
+        colors = CardDefaults.cardColors(Color.White),
+        elevation = CardDefaults.cardElevation(1.dp)
+    ){
+        Image(
+
+            imageVector = item.imageUrl,
+            colorFilter = ColorFilter.tint(Color.Gray),
+            contentDescription = item.title,
+            modifier = Modifier
+                .fillMaxHeight().padding(10.dp)
+                .fillMaxWidth(),
+        )
+    }
+}
+@Serializable
+data class CarouselItem(
+    val title: String,
+    @Contextual
+    val imageUrl: ImageVector
+)
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TopBar() {
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.primary,
+                ),
+                title = {},
+                navigationIcon = {
+                    IconButton(onClick = {  }) {
+                        Icon(
+                            imageVector = Icons.AutoMirrored.Rounded.ExitToApp,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = { /* do something */ }) {
+                        Icon(
+                            imageVector = Icons.Rounded.Face,
+                            contentDescription = "Localized description"
+                        )
+                    }
+                },
+            )
+        },
+        content = { padding ->
+
+        }
+    )
 }

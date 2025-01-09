@@ -35,9 +35,9 @@ data  class  BottomNavigationItem (
                 route = Screen.Product.route
             ),
             BottomNavigationItem(
-                label = "Profile" ,
+                label = "Login" ,
                 icon = Icons.Filled.AccountCircle,
-                route = Screen.Profile.route
+                route = Screen.Login.route
             ),
         )
     }
